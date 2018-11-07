@@ -21,8 +21,7 @@
     - Easy to find, right under "Deploy" section
 1. Deploy using:
     ```
-    az functionapp deployment source config-zip  -g freebergrunfrompackage -n freebergrunfro
-mpackage --src C:\Users\jafreebe\Desktop\demos\functions\runfrompackage-dogfood.zip
+    az functionapp deployment source config-zip  -g freebergrunfrompackage -n freebergrunfrompackage --src C:\Users\jafreebe\Desktop\demos\functions\runfrompackage-dogfood.zip
     ```
 
 __Hard break in user experience at this point__
