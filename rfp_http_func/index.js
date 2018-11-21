@@ -57,6 +57,10 @@ module.exports = async function (context, req) {
                 });
             break;
 
+            // Add a user scenario where they write over and over, this will check the aggregate logging.
+
+            // Rename files, copy files, deleting files
+
             default:
                 context.res = {
                     body: "I didn't understand that. Please provide one of the test case to execute:" + test_cases

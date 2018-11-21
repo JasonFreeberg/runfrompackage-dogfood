@@ -21,22 +21,22 @@
     - Easy to find, right under "Deploy" section
 1. Deploy using:
     ```
-    az functionapp deployment source config-zip  -g freebergrunfrompackage -n freebergrunfrompackage --src C:\Users\jafreebe\Desktop\demos\functions\runfrompackage-dogfood.zip
+    $username = '$username'
+    $password = "password"
+    $filePath = "C:\Users\jafreebe\Desktop\rfp_test.zip"
+    $apiUrl = "https://freebergrunfrompackage.scm.azurewebsites.net/api/zipdeploy"
+    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username, $password)))
+    $userAgent = "powershell/1.0"
+    Invoke-RestMethod -Uri $apiUrl -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -UserAgent $userAgent -Method POST -InFile $filePath -ContentType "multipart/form-data"
     ```
-
-__Hard break in user experience at this point__
-- Message says that everything is OK, but the function does not show in the portal list
-- SSH does not work and Bash is slow -- How can I check that the .zip is on the Function app?
-- The [zip deployment docs](https://docs.microsoft.com/en-us/azure/azure-functions/deployment-zip-push) do not show
-    - Troubleshooting
-    - Confirm that the .zip functions are on the app
-- I could not continue past this point. I tried:
-    - Redploying
-    - Using the old-school Powershell HTTP deployment
-    - 
-
 1. Then I find there is an option to [run from the deployment package](https://docs.microsoft.com/en-us/azure/azure-functions/deployment-zip-push#run-functions-from-the-deployment-package)
+1. Remove my deployed functions from the app so I can redploy with the new setting
 1. I go into the portal and add the environment variable `WEBSITE_RUN_FROM_PACKAGE` to `1`.
+1. Redploy with the same command in step 2
+1. See that the portal indicates the function is now "Read-Only"
+    ![Read only shown in portal.](imgs/portal_read_only.JPG)
+1. **However**, the functions are not shown in the portal. The zip **is** visible under `/home/data/sitePackages/` but _there is no way of knowing that the deployment was successful from the Portal_.
+    ![Console output](imgs/console-output.JPG)
 
 ## Run from package
 
@@ -46,3 +46,11 @@ __Hard break in user experience at this point__
 
 - Finding the first document for initial, local development was very difficult
     - Specifically to use JS development __and__  zip deployment
+- **Add to TSG**:
+    - If a Windows user right-clicks their project and "Sends to compressed folder", this will add an extra level of nesting and break the feature. This should be called out in the docs or fixed. 
+    - Possible bug, If a user...
+        1. Deploys a .zip to a function app **without WEBSITE_RUN_FROM_PACKAGE=1**
+        1. Then deletes it
+        1. Changes the env variable
+        1. Re-deploys
+        - Then the function app will not recognize the .zip 
