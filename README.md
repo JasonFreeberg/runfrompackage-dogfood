@@ -40,7 +40,8 @@
 
 ## Run from package
 
-1. 
+1. Portal UI reminds the user that the App is now ready-only and their function is being run from a package
+1. When I run the functions that are supposed to throw errors...
 
 ## Notes
 
@@ -53,4 +54,4 @@
         1. Then deletes it
         1. Changes the env variable
         1. Re-deploys
-        - Then the function app will not recognize the .zip 
+        ... Then the function app will not recognize the .zip 

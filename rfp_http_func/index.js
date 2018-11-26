@@ -3,6 +3,7 @@ var test_cases = `
 "1" --> Returns a string, test that the function is working
 "2" --> Attempt to write to home/site/wwwroot/
 "3" --> Attempt to write to currect execution directory (whatever is returned by __dirname)
+"4" --> Attempt to write many files to /wwwroot
 `;
 
 module.exports = async function (context, req) {
@@ -20,16 +21,16 @@ module.exports = async function (context, req) {
             case 2:
                 context.log('Case '+testcase+': Attempting to write to /wwwroot.');
 
-                fs.writeFile('/home/site/wwwroot', 'Test_file_written_to_wwwroot', function(err) {
+                fs.writeFile('/home/site/wwwroot/testfile.txt', 'Contents of test file.', function(err) {
                     if (err) {
                         context.log(err);
                         context.res = {
                             status: 500,
                             body: 'Ran case '+testcase+', failed to write to /wwwroot (as expected). Error message: \n' + err.toString
                         };
-                        return console.log(err);
+                        throw err;
                     } else {
-                        console.log('File written to /home/site/wwwroot/')
+                        context.log('File written: /home/site/wwwroot/testfile.txt')
                         context.res = {
                             body: 'Ran case '+testcase+',  wrote file to /wwwroot.'
                         };
@@ -40,26 +41,48 @@ module.exports = async function (context, req) {
             case 3:
                 context.log('Case '+testcase+': Attempting to write to the execution directory: ' + __dirname);
                 
-                fs.writeFile(__dirname, 'Test_file_written_to_'+__dirname, function(err) {
+                fs.writeFile(__dirname+'/testfile.txt', 'Contents of test file.', function(err) {
                     if (err) {
                         context.log(err);
                         context.res = {
                             status: 500,
-                            body: 'Ran case '+testcase+', failed to write to '+__dirname+'. Error message: \n' + err.toString
+                            body: 'Ran case '+testcase+', failed to write to '+__dirname+' (as expected). Error message:\n'+err.toString
                         };
-                        return console.log(err);
+                        throw err;
                     } else {
-                        console.log('File written to '+__dirname)
+                        context.log('File written to '+__dirname)
                         context.res = {
                             body: 'Ran case '+testcase+', wrote file to '+__dirname
                         };
                     } 
                 });
             break;
+            
+            case 4:
+                context.log('Case '+testcase+': Writing 500 files to /wwwroot.');
 
-            // Add a user scenario where they write over and over, this will check the aggregate logging.
+                for (var i = 0; i < 500; i++) {
+                    fs.writeFile('/home/site/wwwroot/testfile'+i+'.txt', 'Contents of test file '+i+'.', function(err){
+                        if (err) {
+                            context.log(err);
+                            context.res = {
+                                status: 500,
+                                body: 'Ran case '+testcase+' failed to write to /wwwroot (as expected). Error message:\n'+err.toString
+                            };
+                            throw err;
+                        } else {
+                            context.log('Files written to /wwwroot (unexpectedly).');
+                            context.res = {
+                                body: 'Ran case '+testcase+', wrote files to /wwwroot (unexpectedly).'
+                            }
+                        }
+                    })
+                }
+            break;
 
-            // Rename files, copy files, deleting files
+            case 5:
+                // Rename files, copy files, delete files
+            break;
 
             default:
                 context.res = {
