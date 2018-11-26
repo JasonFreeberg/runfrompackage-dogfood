@@ -21,13 +21,7 @@
     - Easy to find, right under "Deploy" section
 1. Deploy using:
     ```
-    $username = '$username'
-    $password = "password"
-    $filePath = "C:\Users\jafreebe\Desktop\rfp_test.zip"
-    $apiUrl = "https://freebergrunfrompackage.scm.azurewebsites.net/api/zipdeploy"
-    $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $username, $password)))
-    $userAgent = "powershell/1.0"
-    Invoke-RestMethod -Uri $apiUrl -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -UserAgent $userAgent -Method POST -InFile $filePath -ContentType "multipart/form-data"
+    az functionapp deployment source config-zip -g freeberg-rfp2 -n freeberg-rfp2 --src C:\Users\jafreebe\Desktop\rfp_test2.zip
     ```
 1. Then I find there is an option to [run from the deployment package](https://docs.microsoft.com/en-us/azure/azure-functions/deployment-zip-push#run-functions-from-the-deployment-package)
 1. Remove my deployed functions from the app so I can redploy with the new setting
@@ -45,13 +39,13 @@
 
 ## Notes
 
-- Finding the first document for initial, local development was very difficult
+- Finding the first document for initial, local development was difficult
     - Specifically to use JS development __and__  zip deployment
 - **Add to TSG**:
     - If a Windows user right-clicks their project and "Sends to compressed folder", this will add an extra level of nesting and break the feature. This should be called out in the docs or fixed. 
-    - Possible bug, If a user...
+    - There is a known bug where if a user...
         1. Deploys a .zip to a function app **without WEBSITE_RUN_FROM_PACKAGE=1**
-        1. Then deletes it
-        1. Changes the env variable
-        1. Re-deploys
+        1. Then deletes the .zip
+        1. Adds the env variable, `WEBSITE_RUN_FROM_PACKAGE` with a value of `1`
+        1. Re-deploys their .zip
         ... Then the function app will not recognize the .zip 

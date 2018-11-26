@@ -1,4 +1,5 @@
 var fs = require('fs');
+var path = require('path');
 var test_cases = `
 "1" --> Returns a string, test that the function is working
 "2" --> Attempt to write to home/site/wwwroot/
@@ -19,40 +20,42 @@ module.exports = async function (context, req) {
             break;
 
             case 2:
-                context.log('Case '+testcase+': Attempting to write to /wwwroot.');
+                var full_path = path.join('home','site','wwwroot','testfile.txt');
+                context.log('Case '+testcase+': Attempting to write file: '+full_path);
 
-                fs.writeFile('/home/site/wwwroot/testfile.txt', 'Contents of test file.', function(err) {
+                fs.writeFile(full_path, 'Contents of test file.', function(err) {
                     if (err) {
                         context.log(err);
                         context.res = {
                             status: 500,
-                            body: 'Ran case '+testcase+', failed to write to /wwwroot (as expected). Error message: \n' + err.toString
+                            body: 'Ran case '+testcase+', failed to write to '+full_path+' (as expected). Error message: \n' + err.toString
                         };
                         throw err;
                     } else {
-                        context.log('File written: /home/site/wwwroot/testfile.txt')
+                        context.log('File written: '+full_path)
                         context.res = {
-                            body: 'Ran case '+testcase+',  wrote file to /wwwroot.'
+                            body: 'Ran case '+testcase+',  wrote file to '+full_path
                         };
                     } 
                 });
             break;
 
             case 3:
-                context.log('Case '+testcase+': Attempting to write to the execution directory: ' + __dirname);
+                var full_path = path.join(__dirname, 'testfile.txt');
+                context.log('Case '+testcase+': Attempting to create the file: ' + full_path);
                 
-                fs.writeFile(__dirname+'/testfile.txt', 'Contents of test file.', function(err) {
+                fs.writeFile(full_path, 'Contents of test file.', function(err) {
                     if (err) {
                         context.log(err);
                         context.res = {
                             status: 500,
-                            body: 'Ran case '+testcase+', failed to write to '+__dirname+' (as expected). Error message:\n'+err.toString
+                            body: 'Ran case '+testcase+', failed to write to '+full_path+' (as expected). Error message:\n'+err.toString
                         };
                         throw err;
                     } else {
-                        context.log('File written to '+__dirname)
+                        context.log('File written to '+full_path)
                         context.res = {
-                            body: 'Ran case '+testcase+', wrote file to '+__dirname
+                            body: 'Ran case '+testcase+', wrote file to '+full_path
                         };
                     } 
                 });
@@ -62,7 +65,8 @@ module.exports = async function (context, req) {
                 context.log('Case '+testcase+': Writing 500 files to /wwwroot.');
 
                 for (var i = 0; i < 500; i++) {
-                    fs.writeFile('/home/site/wwwroot/testfile'+i+'.txt', 'Contents of test file '+i+'.', function(err){
+                    var full_path = path.join('home','site','wwwroot','testfile'+i+'.txt'); 
+                    fs.writeFile(full_path, 'Contents of test file '+i, function(err){
                         if (err) {
                             context.log(err);
                             context.res = {
@@ -97,11 +101,3 @@ module.exports = async function (context, req) {
         };
     }
 };
-
-
-// Thurs 11/1 TODO:
-// Check notes for more test cases
-// Set env variables for runfromzip
-// Package
-// Add the packagename.txt
-// Deploy
